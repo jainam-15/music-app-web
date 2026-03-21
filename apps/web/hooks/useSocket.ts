@@ -19,21 +19,28 @@ export const useSocket = () => {
     socket.emit('join-room', user.uid);
 
     socket.on('playback-update', (state: any) => {
-      // Logic to sync state from other devices
-      console.log('Sync from other device:', state);
-      // We only update if it's a different song or significant diff
-      const current = usePlayerStore.getState().currentSong;
-      if (!current || current.id !== state.currentSong.id) {
-        setCurrentSong(state.currentSong);
+      const player = usePlayerStore.getState();
+      
+      // Only update if it's a different song
+      if (!player.currentSong || player.currentSong.id !== state.currentSong.id) {
+        // Skip hydration on synced song update: only the initiating device should hydrate
+        setCurrentSong(state.currentSong, undefined, true);
       }
+      
       // If playing status changed
-      if (usePlayerStore.getState().isPlaying !== state.isPlaying) {
+      if (player.isPlaying !== state.isPlaying) {
         togglePlay();
       }
     });
 
-    socket.on('queue-synced', (queue: any[]) => {
-      setQueue(queue);
+    socket.on('queue-synced', (incomingQueue: any[]) => {
+      const currentQueue = usePlayerStore.getState().queue;
+      // Basic length and first item check for perf, then stringify for deep check
+      if (currentQueue.length !== incomingQueue.length || 
+          (incomingQueue.length > 0 && currentQueue[0]?.id !== incomingQueue[0]?.id) ||
+          JSON.stringify(currentQueue) !== JSON.stringify(incomingQueue)) {
+        setQueue(incomingQueue);
+      }
     });
 
     return () => {

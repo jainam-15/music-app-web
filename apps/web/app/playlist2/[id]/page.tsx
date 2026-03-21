@@ -6,14 +6,23 @@ import { usePlayerStore } from "@/store/usePlayerStore";
 import { usePlaylistStore } from "@/store/usePlaylistStore";
 import { SongOptions } from "@/components/SongOptions";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function PlaylistPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const { setCurrentSong, setQueue, currentSong, isPlaying } = usePlayerStore();
-  const { playlists, removeFromPlaylist } = usePlaylistStore();
+  const { playlists, removeFromPlaylist, deletePlaylist } = usePlaylistStore();
 
   const playlist = playlists.find(p => p.id === id);
+
+  const handleDelete = async () => {
+    if (confirm("Are you sure you want to delete this playlist?")) {
+      await deletePlaylist(id);
+      router.push("/library");
+    }
+  };
 
   const formatDuration = (s: number) => {
     if (!s) return "--:--";
@@ -111,8 +120,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
           <button className="p-2 text-zinc-400 hover:text-white transition-colors hover:scale-110 active:scale-90">
             <Share2 className="w-6 h-6" />
           </button>
-          <button className="p-2 text-zinc-400 hover:text-white transition-colors hover:scale-110 active:scale-90">
-            <MoreHorizontal className="w-7 h-7" />
+          <button 
+            onClick={handleDelete}
+            className="p-2 text-zinc-400 hover:text-red-500 transition-colors hover:scale-110 active:scale-90"
+            title="Delete Playlist"
+          >
+            <Trash2 className="w-6 h-6" />
           </button>
         </div>
       </div>

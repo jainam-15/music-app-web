@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, Play, Clock, Music, Plus, ListMusic, Disc, Search } from "lucide-react";
+import { Heart, Play, Clock, Music, Plus, ListMusic, Disc, Search, Trash2 } from "lucide-react";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { useLikedStore } from "@/store/useLikedStore";
 import { usePlaylistStore } from "@/store/usePlaylistStore";
@@ -18,7 +18,7 @@ const TABS = [
 export default function LibraryPage() {
   const { setCurrentSong, setQueue, currentSong, isPlaying } = usePlayerStore();
   const { likedSongs } = useLikedStore();
-  const { playlists, createPlaylist } = usePlaylistStore();
+  const { playlists, createPlaylist, deletePlaylist } = usePlaylistStore();
   const [activeTab, setActiveTab] = useState<string>("playlists");
   const [popularAlbums, setPopularAlbums] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -126,8 +126,24 @@ export default function LibraryPage() {
             {/* Real Playlists */}
             {playlists.map((playlist: any) => (
               <Link key={playlist.id} href={`/playlist2/${playlist.id}`} className="group p-6 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-white/10 transition-all relative overflow-hidden flex flex-col justify-between aspect-[16/9]">
-                <div className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center shadow-2xl relative z-10 group-hover:scale-110 transition-transform duration-500 text-zinc-500 group-hover:text-green-500">
-                  <ListMusic className="w-7 h-7" />
+                <div className="flex items-start justify-between relative z-10">
+                  <div className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500 text-zinc-500 group-hover:text-green-500">
+                    <ListMusic className="w-7 h-7" />
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (confirm(`Delete playlist "${playlist.name}"?`)) {
+                        deletePlaylist(playlist.id);
+                      }
+                    }}
+                    className="p-2 text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </motion.button>
                 </div>
                 <div className="relative z-10 flex items-center justify-between">
                    <div>

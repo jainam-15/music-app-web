@@ -25,6 +25,10 @@ export const UserAPI = {
     const res = await backendClient.post('/users/playlists', { userId, name });
     return res.data;
   },
+  deletePlaylist: async (userId: string, playlistId: string) => {
+    const res = await backendClient.post('/users/playlists/delete', { userId, playlistId });
+    return res.data;
+  },
   getPlaylists: async (userId: string) => {
     const res = await backendClient.get(`/users/playlists/${userId}`);
     return res.data;
@@ -40,6 +44,14 @@ export const UserAPI = {
 
   updateLastPlayed: async (userId: string, song: any) => {
     const res = await backendClient.post('/users/last-played', { userId, song });
+    return res.data;
+  },
+  getRecentPlays: async (userId: string) => {
+    const res = await backendClient.get(`/users/last-played/${userId}`);
+    return res.data;
+  },
+  clearRecentPlays: async (userId: string) => {
+    const res = await backendClient.post('/users/clear-recent-plays', { userId });
     return res.data;
   }
 };

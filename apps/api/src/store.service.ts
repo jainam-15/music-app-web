@@ -1,14 +1,42 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class StoreService {
+  private STORAGE_PATH = path.join(process.cwd(), 'data-store.json');
   private users: Map<string, any> = new Map();
   private likedSongs: Map<string, any[]> = new Map();
   private recentPlays: Map<string, any[]> = new Map();
-  private playlists: Map<string, any[]> = new Map(); // userId -> Playlist[]
+  private playlists: Map<string, any[]> = new Map();
 
   constructor() {
-    console.log('✓ In-memory Store initialized (No MongoDB required for demo)');
+    this.loadFromDisk();
+    console.log('✓ In-memory Store with Local Persistence initialized');
+  }
+
+  private saveToDisk() {
+    try {
+      const data = {
+        users: Object.fromEntries(this.users),
+        likedSongs: Object.fromEntries(this.likedSongs),
+        recentPlays: Object.fromEntries(this.recentPlays),
+        playlists: Object.fromEntries(this.playlists),
+      };
+      fs.writeFileSync(this.STORAGE_PATH, JSON.stringify(data, null, 2));
+    } catch (e) { console.error('Save failed:', e); }
+  }
+
+  private loadFromDisk() {
+    try {
+      if (fs.existsSync(this.STORAGE_PATH)) {
+        const data = JSON.parse(fs.readFileSync(this.STORAGE_PATH, 'utf8'));
+        this.users = new Map(Object.entries(data.users || {}));
+        this.likedSongs = new Map(Object.entries(data.likedSongs || {}));
+        this.recentPlays = new Map(Object.entries(data.recentPlays || {}));
+        this.playlists = new Map(Object.entries(data.playlists || {}));
+      }
+    } catch (e) { console.error('Load failed:', e); }
   }
 
   async syncUser(userData: any) {
@@ -22,10 +50,10 @@ export class StoreService {
     if (!this.recentPlays.has(userData.uid)) {
       this.recentPlays.set(userData.uid, []);
     }
+    this.saveToDisk();
     return userData;
   }
 
-  // --- Liked Songs ---
   async likeSong(userId: string, song: any) {
     const list = this.likedSongs.get(userId) || [];
     const exists = list.find(s => s.id === song.id);
@@ -34,6 +62,7 @@ export class StoreService {
     } else {
       this.likedSongs.set(userId, [song, ...list]);
     }
+    this.saveToDisk();
     return this.likedSongs.get(userId);
   }
 
@@ -41,7 +70,6 @@ export class StoreService {
     return this.likedSongs.get(userId) || [];
   }
 
-  // --- Playlists ---
   async createPlaylist(userId: string, name: string) {
     const userPlaylists = this.playlists.get(userId) || [];
     const newPlaylist = {
@@ -51,7 +79,15 @@ export class StoreService {
       createdAt: new Date(),
     };
     this.playlists.set(userId, [...userPlaylists, newPlaylist]);
+    this.saveToDisk();
     return newPlaylist;
+  }
+
+  async deletePlaylist(userId: string, playlistId: string) {
+    const list = this.playlists.get(userId) || [];
+    this.playlists.set(userId, list.filter(p => p.id !== playlistId));
+    this.saveToDisk();
+    return true;
   }
 
   async getPlaylists(userId: string) {
@@ -64,6 +100,7 @@ export class StoreService {
     if (playlist && !playlist.songs.find(s => s.id === song.id)) {
       playlist.songs.push(song);
     }
+    this.saveToDisk();
     return playlist;
   }
 
@@ -73,6 +110,7 @@ export class StoreService {
     if (playlist) {
       playlist.songs = playlist.songs.filter(s => s.id !== songId);
     }
+    this.saveToDisk();
     return playlist;
   }
 
@@ -80,10 +118,17 @@ export class StoreService {
     const list = this.recentPlays.get(userId) || [];
     const filtered = list.filter(s => s.id !== song.id);
     this.recentPlays.set(userId, [song, ...filtered].slice(0, 20));
+    this.saveToDisk();
     return song;
   }
 
   async getRecentPlays(userId: string) {
     return this.recentPlays.get(userId) || [];
+  }
+
+  async clearRecentPlays(userId: string) {
+    this.recentPlays.set(userId, []);
+    this.saveToDisk();
+    return true;
   }
 }

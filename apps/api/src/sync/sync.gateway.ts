@@ -30,17 +30,19 @@ export class SyncGateway {
   @SubscribeMessage('playback-state')
   handlePlaybackState(
     @MessageBody() data: { userId: string; state: any },
+    @ConnectedSocket() client: Socket,
   ) {
-    // Broadcast to all other devices of the same user
+    // Broadcast to all other devices of the same user EXCEPT the sender
     const room = `${this.userRoomPrefix}${data.userId}`;
-    this.server.to(room).emit('playback-update', data.state);
+    client.to(room).emit('playback-update', data.state);
   }
 
   @SubscribeMessage('queue-update')
   handleQueueUpdate(
     @MessageBody() data: { userId: string; queue: any[] },
+    @ConnectedSocket() client: Socket,
   ) {
     const room = `${this.userRoomPrefix}${data.userId}`;
-    this.server.to(room).emit('queue-synced', data.queue);
+    client.to(room).emit('queue-synced', data.queue);
   }
 }

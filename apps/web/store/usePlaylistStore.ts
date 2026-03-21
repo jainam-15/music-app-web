@@ -15,6 +15,7 @@ interface PlaylistState {
   playlists: Playlist[];
   loading: boolean;
   createPlaylist: (name: string) => Promise<void>;
+  deletePlaylist: (playlistId: string) => Promise<void>;
   addToPlaylist: (playlistId: string, song: PlayerSong) => Promise<void>;
   removeFromPlaylist: (playlistId: string, songId: string) => Promise<void>;
   fetchPlaylists: () => Promise<void>;
@@ -60,6 +61,18 @@ export const usePlaylistStore = create<PlaylistState>()(
 
         // Always update local state for guest or if backend fails
         set({ playlists: [...get().playlists, newPlaylist] });
+      },
+
+      deletePlaylist: async (playlistId: string) => {
+        const user = useAuthStore.getState().user;
+        if (user) {
+          try {
+            await UserAPI.deletePlaylist(user.uid, playlistId);
+          } catch (e) {
+            console.error("Failed to delete playlist on backend:", e);
+          }
+        }
+        set({ playlists: get().playlists.filter(p => p.id !== playlistId) });
       },
 
       addToPlaylist: async (playlistId, song) => {

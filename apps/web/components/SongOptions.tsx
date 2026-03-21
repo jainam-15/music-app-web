@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontal, Plus, Heart, Share2, ListMusic, ChevronRight, Ban, Check } from "lucide-react";
+import { MoreHorizontal, Plus, Heart, Share2, ListMusic, ChevronRight, Ban, Check, SkipForward, ListPlus } from "lucide-react";
 import { usePlaylistStore } from "@/store/usePlaylistStore";
 import { useLikedStore } from "@/store/useLikedStore";
-import { PlayerSong } from "@/store/usePlayerStore";
+import { usePlayerStore, PlayerSong } from "@/store/usePlayerStore";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const SongOptions = ({ song }: { song: PlayerSong }) => {
@@ -13,6 +13,7 @@ export const SongOptions = ({ song }: { song: PlayerSong }) => {
   const [addedFeedback, setAddedFeedback] = useState<string | null>(null);
   const { playlists, addToPlaylist } = usePlaylistStore();
   const { toggleLike, isLiked } = useLikedStore();
+  const { addToQueue, playNext } = usePlayerStore();
 
   const handleAdd = async (id: string, name: string) => {
     await addToPlaylist(id, song);
@@ -123,6 +124,24 @@ export const SongOptions = ({ song }: { song: PlayerSong }) => {
                       )}
                     </AnimatePresence>
                   </div>
+
+                  <div className="my-1 border-t border-white/5" />
+
+                  <button 
+                    onClick={() => { playNext(song); setIsOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-zinc-300 hover:text-white hover:bg-white/5 transition-all group"
+                  >
+                    <SkipForward className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    Play Next
+                  </button>
+
+                  <button 
+                    onClick={() => { addToQueue(song); setIsOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-zinc-300 hover:text-white hover:bg-white/5 transition-all group"
+                  >
+                    <ListPlus className="w-4 h-4 transition-transform group-hover:scale-110" />
+                    Add to Queue
+                  </button>
 
                   <div className="my-1 border-t border-white/5" />
 

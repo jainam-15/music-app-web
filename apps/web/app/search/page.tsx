@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Search as SearchIcon, X, Play, ArrowLeft } from "lucide-react";
-import { searchSongs, searchAlbums, searchArtists, MappedSong } from "@/lib/api";
+import { searchSongs, searchAlbums, searchArtists, MappedSong, getRecommendedSongs } from "@/lib/api";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { SongOptions } from "@/components/SongOptions";
 import { motion, AnimatePresence } from "framer-motion";
@@ -63,9 +63,15 @@ export default function SearchPage() {
     setLoading(false);
   };
 
-  const playSong = (song: MappedSong, list: MappedSong[]) => {
+  const playSong = async (song: MappedSong, list: MappedSong[]) => {
     setCurrentSong(song);
-    setQueue(list);
+    // Add musically similar tracks to the queue instead of just search results
+    const recommendations = await getRecommendedSongs(song.id, 20);
+    if (recommendations.length > 0) {
+      setQueue([song, ...recommendations]);
+    } else {
+      setQueue(list);
+    }
   };
 
   const formatDuration = (s: number) => {

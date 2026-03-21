@@ -26,6 +26,11 @@ export class UsersController {
     return this.usersService.createPlaylist(userId, name);
   }
 
+  @Post('playlists/delete')
+  async delete(@Body() { userId, playlistId }: any) {
+    return this.usersService.deletePlaylist(userId, playlistId);
+  }
+
   @Get('playlists/:userId')
   async getPlaylists(@Param('userId') userId: string) {
     return this.usersService.getPlaylists(userId);
@@ -49,5 +54,15 @@ export class UsersController {
   @Get('last-played/:id')
   async getRecentPlays(@Param('id') userId: string) {
     return this.usersService.getRecentPlays(userId);
+  }
+
+  @Post('clear-recent-plays')
+  async clearRecentPlays(@Body() { userId }: any) {
+    return this.usersService.clearRecentPlays(userId);
+  }
+
+  @Get('clear-test')
+  async clearTest() {
+    return { status: 'ok' };
   }
 }

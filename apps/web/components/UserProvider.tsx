@@ -2,28 +2,39 @@
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useLikedStore } from "@/store/useLikedStore";
-import { usePlaylistStore } from "@/store/usePlaylistStore";
-import { UserAPI } from "@/lib/backend";
+import { isConfigValid } from "@/lib/firebase";
 
+/**
+ * Initializes the auth state and forces the login modal if no user exists.
+ */
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuthStore();
-  const { setLikedSongs } = useLikedStore();
-  const { fetchPlaylists } = usePlaylistStore();
+  const { initialize, user, initialized, loading, setIsAuthOpen } = useAuthStore();
+  
+  useEffect(() => {
+    if (isConfigValid) {
+      initialize();
+    }
+  }, [initialize]);
 
   useEffect(() => {
-    if (user) {
-      // Sync Library from backend when logging in
-      Promise.all([
-        UserAPI.getLikedSongs(user.uid),
-        fetchPlaylists()
-      ]).then(([backendLiked]) => {
-        if (backendLiked && backendLiked.length > 0) {
-          setLikedSongs(backendLiked);
-        }
-      }).catch(err => console.error("Failed to fetch library from backend:", err));
+    if (initialized && !loading && !user) {
+      setIsAuthOpen(true);
     }
-  }, [user]);
+  }, [initialized, loading, user, setIsAuthOpen]);
 
-  return <>{children}</>;
+  // Loading Splash
+  if (!initialized) {
+     return (
+        <div className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center gap-6">
+          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-zinc-500 font-black uppercase tracking-[0.2em] text-xs animate-pulse">Initializing Portal</p>
+        </div>
+     );
+  }
+
+  return (
+    <div className="contents">
+       {children}
+    </div>
+  );
 };

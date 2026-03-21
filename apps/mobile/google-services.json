@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "405253103561",
+    "project_id": "music-space-fe322",
+    "storage_bucket": "music-space-fe322.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405253103561:android:330f2ef99b499e77b95218",
+        "android_client_info": {
+          "package_name": "com.music.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "405253103561-dicqt3daua3055bo3naa0h1i886lspti.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH8d1Yu_8I0g8XVXW8gT3OGUfwqEl0U9A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "405253103561-dicqt3daua3055bo3naa0h1i886lspti.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

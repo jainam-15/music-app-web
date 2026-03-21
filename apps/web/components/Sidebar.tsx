@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Home, Search, Library, Heart, ListMusic, User, Settings, LogIn, Plus, Disc, TrendingUp, Radio } from "lucide-react";
+import { Home, Search, Library, Heart, ListMusic, User, Settings, LogIn, LogOut, Plus, Disc, TrendingUp, Radio } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useLikedStore } from "@/store/useLikedStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePlaylistStore } from "@/store/usePlaylistStore";
+import { usePlayerStore } from "@/store/usePlayerStore";
 import { motion } from "framer-motion";
 
 const Sidebar = () => {
   const pathname = usePathname();
   const { likedSongs } = useLikedStore();
-  const { user, loginAsGuest, loading } = useAuthStore();
+  const { user, loading, logout, setIsAuthOpen } = useAuthStore();
   const { playlists, createPlaylist } = usePlaylistStore();
+  const { currentSong } = usePlayerStore();
   const [isCreating, setIsCreating] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
 
@@ -38,16 +40,16 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-64 bg-black flex-shrink-0 flex flex-col h-full border-r border-white/5">
+    <div className={`w-64 bg-black flex-shrink-0 flex flex-col h-full border-r border-white/5 transition-all duration-300 ${currentSong ? "pb-24" : "pb-0"}`}>
       {/* Premium Logo */}
       <div className="p-8 pb-6">
         <Link href="/" className="flex items-center gap-3 active:scale-95 transition-transform group">
           <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/20 group-hover:rotate-6 transition-transform">
             <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
-               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
             </div>
           </div>
-          <span className="text-xl font-black tracking-tighter text-white">MusicApp</span>
+          <span className="text-xl font-black tracking-tighter text-white">Jainam&apos;s Music Space</span>
         </Link>
       </div>
 
@@ -61,9 +63,8 @@ const Sidebar = () => {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-bold transition-all relative ${
-                    active ? "text-white" : "text-zinc-500 hover:text-zinc-200"
-                  }`}
+                  className={`group flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-bold transition-all relative ${active ? "text-white" : "text-zinc-500 hover:text-zinc-200"
+                    }`}
                 >
                   {active && (
                     <motion.div
@@ -84,16 +85,16 @@ const Sidebar = () => {
         <section>
           <h3 className="px-4 text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-3">Explore</h3>
           <div className="flex flex-col gap-1">
-             {exploreItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="group flex items-center gap-4 px-4 py-2.5 rounded-xl text-sm font-bold text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-all"
-                >
-                  <item.icon className="w-4 h-4 group-hover:text-white" />
-                  {item.name}
-                </Link>
-             ))}
+            {exploreItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="group flex items-center gap-4 px-4 py-2.5 rounded-xl text-sm font-bold text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-all"
+              >
+                <item.icon className="w-4 h-4 group-hover:text-white" />
+                {item.name}
+              </Link>
+            ))}
           </div>
         </section>
 
@@ -101,7 +102,7 @@ const Sidebar = () => {
         <section>
           <div className="flex items-center justify-between px-4 mb-3">
             <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Your Collection</h3>
-            <button 
+            <button
               onClick={() => setIsCreating(true)}
               className="p-1 rounded-md hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
             >
@@ -112,9 +113,8 @@ const Sidebar = () => {
           <div className="flex flex-col gap-1">
             <Link
               href="/liked"
-              className={`group flex items-center gap-4 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                pathname === "/liked" ? "text-white bg-white/5" : "text-zinc-500 hover:text-zinc-200"
-              }`}
+              className={`group flex items-center gap-4 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${pathname === "/liked" ? "text-white bg-white/5" : "text-zinc-500 hover:text-zinc-200"
+                }`}
             >
               <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded flex items-center justify-center shadow-lg shadow-indigo-500/10">
                 <Heart className="w-3.5 h-3.5 text-white fill-white" />
@@ -165,7 +165,7 @@ const Sidebar = () => {
               <p className="text-zinc-500 text-[10px] leading-tight">Sync your music across all devices.</p>
             </div>
             <button
-              onClick={() => loginAsGuest()}
+              onClick={() => setIsAuthOpen(true)}
               disabled={loading}
               className="w-full bg-white text-black font-black py-2.5 rounded-xl text-[11px] hover:scale-[1.02] active:scale-95 transition-transform flex items-center justify-center gap-2"
             >
@@ -186,9 +186,13 @@ const Sidebar = () => {
               <span className="text-white text-xs font-black truncate">{user.displayName}</span>
               <span className="text-zinc-500 text-[10px] font-bold">Premium Plan</span>
             </div>
-            <div className="ml-auto p-2 text-zinc-500 hover:text-white transition-colors">
-               <Settings className="w-4 h-4" />
-            </div>
+            <button 
+              onClick={() => logout()}
+              className="ml-auto p-2 text-zinc-500 hover:text-red-500 transition-all hover:bg-red-500/10 rounded-xl"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </Link>
         )}
       </div>

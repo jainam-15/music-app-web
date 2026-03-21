@@ -2,6 +2,7 @@
 
 import { Play, Pause } from "lucide-react";
 import { usePlayerStore, PlayerSong } from "../store/usePlayerStore";
+import { getRecommendedSongs } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MusicCardProps {
@@ -14,10 +15,7 @@ const MusicCard = ({ song, queue }: MusicCardProps) => {
 
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (queue) {
-      setQueue(queue);
-    }
-    setCurrentSong(song);
+    setCurrentSong(song, queue);
   };
 
   const isActive = currentSong?.id === song.id;

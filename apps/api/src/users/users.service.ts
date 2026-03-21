@@ -3,7 +3,7 @@ import { StoreService } from '../store.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly store: StoreService) {}
+  constructor(private readonly store: StoreService) { }
 
   async findByFirebaseId(firebaseId: string) {
     return this.store.syncUser({ uid: firebaseId });
@@ -26,6 +26,10 @@ export class UsersService {
     return this.store.createPlaylist(userId, name);
   }
 
+  async deletePlaylist(userId: string, playlistId: string) {
+    return this.store.deletePlaylist(userId, playlistId);
+  }
+
   async getPlaylists(userId: string) {
     return this.store.getPlaylists(userId);
   }
@@ -44,5 +48,9 @@ export class UsersService {
 
   async getRecentPlays(userId: string) {
     return this.store.getRecentPlays(userId);
+  }
+
+  async clearRecentPlays(userId: string) {
+    return this.store.clearRecentPlays(userId);
   }
 }

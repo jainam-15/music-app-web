@@ -20,12 +20,11 @@ export interface MappedSong {
   cover: string;
   url: string;
   duration: number;
+  language: string;
 }
 
 function mapSong(song: SaavnSong): MappedSong {
-  // Get highest quality image (500x500)
   const cover = song.image?.[2]?.link || song.image?.[1]?.link || song.image?.[0]?.link || "";
-  // Get highest quality audio (320kbps)
   const url =
     song.downloadUrl?.[4]?.link ||
     song.downloadUrl?.[3]?.link ||
@@ -42,12 +41,12 @@ function mapSong(song: SaavnSong): MappedSong {
     cover,
     url,
     duration: parseInt(song.duration) || 0,
+    language: song.language || "unknown",
   };
 }
 
-// Simple in-memory cache for API calls
 const apiCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 1000 * 60 * 5; // 5 minutes
+const CACHE_TTL = 1000 * 60 * 5;
 
 async function fetchWithCache(url: string) {
   const now = Date.now();
@@ -70,7 +69,6 @@ export async function searchSongs(query: string, limit = 20): Promise<MappedSong
 }
 
 export async function getTrendingSongs(): Promise<MappedSong[]> {
-  // Fetch popular/trending songs from India
   const queries = ["trending hindi", "arijit singh", "top bollywood hits", "latest punjabi"];
   const randomQuery = queries[Math.floor(Math.random() * queries.length)];
   return searchSongs(randomQuery, 12);
@@ -104,7 +102,6 @@ export async function getMoodPlaylists(): Promise<{ title: string; songs: Mapped
   return results;
 }
 
-// ---- Album ----
 export interface MappedAlbum {
   id: string;
   name: string;
@@ -151,7 +148,6 @@ export async function searchAlbums(query: string, limit = 10) {
   return [];
 }
 
-// ---- Artist ----
 export interface MappedArtist {
   id: string;
   name: string;
@@ -198,7 +194,6 @@ export async function searchArtists(query: string, limit = 10) {
   return [];
 }
 
-// ---- Song detail & Lyrics ----
 export async function getSongById(id: string): Promise<MappedSong | null> {
   try {
     const data = await fetchWithCache(`${BASE_URL}/songs?id=${id}`);
@@ -219,8 +214,74 @@ export async function getLyrics(id: string): Promise<string | null> {
   return null;
 }
 
-function cleanText(text: string): string {
-  if (!text) return "";
+export async function getRecommendedSongs(id: string, limit = 10, song?: MappedSong): Promise<MappedSong[]> {
+  try {
+    const data = await fetchWithCache(`${BASE_URL}/songs/${id}/recommendations?limit=${limit}`);
+    if (data.status === "SUCCESS" && data.data && data.data.length > 0) {
+      return data.data.map(mapSong);
+    }
+  } catch (e) {
+    console.error("Recommendations failed, using fallback:", e);
+  }
+
+  const primaryArtist = song?.artist?.split(/[,&]/)[0]?.trim();
+
+  // --- SMART DISCOVERY LAYER ---
+  try {
+    const searchQuery = `${song?.title} ${primaryArtist}`.trim();
+    const playlistSearch = await fetchWithCache(`${BASE_URL}/search/playlists?query=${encodeURIComponent(searchQuery)}&limit=1`);
+    
+    if (playlistSearch.status === "SUCCESS" && playlistSearch.data?.results?.[0]) {
+      const playlistId = playlistSearch.data.results[0].id;
+      const playlistData = await fetchWithCache(`${BASE_URL}/playlists?id=${playlistId}`);
+      if (playlistData.status === "SUCCESS" && playlistData.data?.songs) {
+         const results = playlistData.data.songs.map(mapSong);
+         const discovery = results.filter((r: MappedSong) => 
+           !r.artist.toLowerCase().includes(primaryArtist?.toLowerCase() || "_____") &&
+           r.id !== song?.id
+         );
+         if (discovery.length > 0) return discovery;
+      }
+    }
+  } catch (e) { console.error("Smart Discovery failed", e); }
+
+  const language = song?.language?.toLowerCase();
+  const queries = [];
+  
+  const indianLanguages = ["hindi", "punjabi", "tamil", "telugu", "marathi", "gujarati", "bengali", "kannada", "malayalam", "bhojpuri", "urdu", "haryanvi", "rajasthani", "odia", "assamese"];
+  
+  const isIndian = indianLanguages.includes(language || "") || 
+                   primaryArtist?.toLowerCase().includes("singh") || 
+                   primaryArtist?.toLowerCase().includes("badshah") ||
+                   primaryArtist?.toLowerCase().includes("honey") ||
+                   primaryArtist?.toLowerCase().includes("arijit");
+
+  if (isIndian) {
+    const lang = language && language !== "unknown" ? language : "hindi";
+    queries.push(`latest ${lang} hits`, `trending ${lang} songs`, `${lang} songs mashup`);
+  } else {
+    queries.push("global top hits", "trending billboard 100", "top english pop hits");
+  }
+
+  queries.push("trending hindi", "latest punjabi", "lofi beats india");
+
+  for (const q of queries) {
+    const results = await searchSongs(q, limit);
+    if (results.length > 0) {
+      const discovery = results.filter((r: MappedSong) => 
+        !r.artist.toLowerCase().includes(primaryArtist?.toLowerCase() || "_____") &&
+        r.id !== song?.id
+      );
+      if (discovery.length > 0) return discovery;
+      return results;
+    }
+  }
+    
+  return [];
+}
+
+function cleanText(text: any): string {
+  if (!text || typeof text !== "string") return "";
   const entities: { [key: string]: string } = {
     "&quot;": '"',
     "&amp;": "&",
@@ -235,4 +296,3 @@ function cleanText(text: string): string {
   };
   return text.replace(/&[a-z0-9#]+;/gi, (m) => entities[m] || m);
 }
-

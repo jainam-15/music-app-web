@@ -1,0 +1,21 @@
+
+> music-app-monorepo@1.0.0 dev:mobile
+> npm run start --workspace=apps/mobile
+
+
+> mobile@1.0.0 start
+> expo start
+
+Starting project at D:\Coding\Project\Music App\apps\mobile
+ΓÇ║ Port 8081 is being used by another process
+Input is required, but 'npx expo' is in non-interactive mode.
+Required input:
+> Use port 8082 instead?
+ΓÇ║ Skipping dev server
+npm error Lifecycle script `start` failed with error:
+npm error code 1
+npm error path D:\Coding\Project\Music App\apps\mobile
+npm error workspace mobile@1.0.0
+npm error location D:\Coding\Project\Music App\apps\mobile
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c expo start
