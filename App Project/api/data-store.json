@@ -1,0 +1,50 @@
+{
+  "users": {
+    "GZd4F3GvT6PmWT01i3hKDyMmqaS2": {
+      "uid": "GZd4F3GvT6PmWT01i3hKDyMmqaS2",
+      "email": "nomaill1q@gmail.com",
+      "displayName": "No Mail",
+      "photoURL": "https://ui-avatars.com/api/?name=No%20Mail&background=1DB954&color=fff"
+    }
+  },
+  "likedSongs": {
+    "GZd4F3GvT6PmWT01i3hKDyMmqaS2": []
+  },
+  "recentPlays": {
+    "guest-123": [
+      {
+        "id": "6DcCBWcf",
+        "title": "okay cool",
+        "artist": "Khim, Ayv1o",
+        "album": "okay cool",
+        "cover": "https://c.saavncdn.com/485/okay-cool-English-2026-20260112152416-500x500.jpg",
+        "url": "https://aac.saavncdn.com/485/d79f65ae043128135723dbd49234b8f4_320.mp4",
+        "duration": 81
+      },
+      {
+        "id": "nnGfLWid",
+        "title": "Gaadi Paache Gaadi",
+        "artist": "Amanraj Gill, Bulbul",
+        "album": "Gaadi Paache Gaadi",
+        "cover": "https://c.saavncdn.com/419/Gaadi-Paache-Gaadi-Haryanvi-2022-20250808093805-500x500.jpg",
+        "url": "https://aac.saavncdn.com/419/d34d715d54a6cba080e6f087aba8cfaf_320.mp4",
+        "duration": 191
+      }
+    ],
+    "GZd4F3GvT6PmWT01i3hKDyMmqaS2": [
+      {
+        "id": "JbX4wiXB",
+        "title": "Supreme",
+        "artist": "Shubh",
+        "album": "Supreme",
+        "cover": "https://c.saavncdn.com/158/Supreme-Punjabi-2025-20251203065555-500x500.jpg",
+        "url": "https://aac.saavncdn.com/158/9de8fbb3fc177730546329f718b22fe0_320.mp4",
+        "duration": 178,
+        "language": "punjabi"
+      }
+    ]
+  },
+  "playlists": {
+    "GZd4F3GvT6PmWT01i3hKDyMmqaS2": []
+  }
+}

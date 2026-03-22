@@ -4,7 +4,7 @@
       "uid": "GZd4F3GvT6PmWT01i3hKDyMmqaS2",
       "email": "nomaill1q@gmail.com",
       "displayName": "No Mail",
-      "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocLeOd9NouiNLKpoauXgujYfkTcGC839uUiKgINRaDPmn_qR3A=s96-c"
+      "photoURL": "https://ui-avatars.com/api/?name=No%20Mail&background=1DB954&color=fff"
     }
   },
   "likedSongs": {
@@ -31,7 +31,18 @@
         "duration": 191
       }
     ],
-    "GZd4F3GvT6PmWT01i3hKDyMmqaS2": []
+    "GZd4F3GvT6PmWT01i3hKDyMmqaS2": [
+      {
+        "id": "JbX4wiXB",
+        "title": "Supreme",
+        "artist": "Shubh",
+        "album": "Supreme",
+        "cover": "https://c.saavncdn.com/158/Supreme-Punjabi-2025-20251203065555-500x500.jpg",
+        "url": "https://aac.saavncdn.com/158/9de8fbb3fc177730546329f718b22fe0_320.mp4",
+        "duration": 178,
+        "language": "punjabi"
+      }
+    ]
   },
   "playlists": {
     "GZd4F3GvT6PmWT01i3hKDyMmqaS2": []
